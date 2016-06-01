@@ -9,7 +9,10 @@ eth_policy()
 
 # project name and version should be set after cmake_policy CMP0048
 set(PROJECT_VERSION "0.3.5")
+set(ETH_VERSION_SUFFIX "CP")
+set(VERSION_SUFFIX "XCP")
 project(solidity VERSION ${PROJECT_VERSION})
+
 
 # Let's find our dependencies
 include(EthDependencies)
