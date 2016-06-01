@@ -225,7 +225,7 @@ bool CompilerStack::compile(string const& _sourceCode, bool _optimize)
 	return parse(_sourceCode) && compile(_optimize);
 }
 
-void CompilerStack::link(const std::map<string, h160>& _libraries)
+void CompilerStack::link(const std::map<string, h256>& _libraries)
 {
 	for (auto& contract: m_contracts)
 	{

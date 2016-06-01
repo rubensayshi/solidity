@@ -889,9 +889,9 @@ BOOST_AUTO_TEST_CASE(mapping_state)
 	class Ballot
 	{
 	public:
-		u256 getVoteCount(u160 _address) { return m_voteCount[_address]; }
-		void grantVoteRight(u160 _address) { m_canVote[_address] = true; }
-		bool vote(u160 _voter, u160 _vote)
+		u256 getVoteCount(u256 _address) { return m_voteCount[_address]; }
+		void grantVoteRight(u256 _address) { m_canVote[_address] = true; }
+		bool vote(u256 _voter, u256 _vote)
 		{
 			if (!m_canVote[_voter] || m_voted[_voter]) return false;
 			m_voted[_voter] = true;
@@ -899,46 +899,46 @@ BOOST_AUTO_TEST_CASE(mapping_state)
 			return true;
 		}
 	private:
-		map<u160, bool> m_canVote;
-		map<u160, u256> m_voteCount;
-		map<u160, bool> m_voted;
+		map<u256, bool> m_canVote;
+		map<u256, u160> m_voteCount;
+		map<u256, bool> m_voted;
 	} ballot;
 
 	auto getVoteCount = bind(&Ballot::getVoteCount, &ballot, _1);
 	auto grantVoteRight = bind(&Ballot::grantVoteRight, &ballot, _1);
 	auto vote = bind(&Ballot::vote, &ballot, _1, _2);
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(0));
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(1));
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(2));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(0));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(1));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(2));
 	// voting without vote right should be rejected
-	testSolidityAgainstCpp("vote(address,address)", vote, u160(0), u160(2));
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(0));
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(1));
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(2));
+	testSolidityAgainstCpp("vote(address,address)", vote, u256(0), u256(2));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(0));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(1));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(2));
 	// grant vote rights
-	testSolidityAgainstCpp("grantVoteRight(address)", grantVoteRight, u160(0));
-	testSolidityAgainstCpp("grantVoteRight(address)", grantVoteRight, u160(1));
+	testSolidityAgainstCpp("grantVoteRight(address)", grantVoteRight, u256(0));
+	testSolidityAgainstCpp("grantVoteRight(address)", grantVoteRight, u256(1));
 	// vote, should increase 2's vote count
-	testSolidityAgainstCpp("vote(address,address)", vote, u160(0), u160(2));
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(0));
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(1));
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(2));
+	testSolidityAgainstCpp("vote(address,address)", vote, u256(0), u256(2));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(0));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(1));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(2));
 	// vote again, should be rejected
-	testSolidityAgainstCpp("vote(address,address)", vote, u160(0), u160(1));
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(0));
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(1));
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(2));
+	testSolidityAgainstCpp("vote(address,address)", vote, u256(0), u256(1));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(0));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(1));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(2));
 	// vote without right to vote
-	testSolidityAgainstCpp("vote(address,address)", vote, u160(2), u160(1));
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(0));
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(1));
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(2));
+	testSolidityAgainstCpp("vote(address,address)", vote, u256(2), u256(1));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(0));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(1));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(2));
 	// grant vote right and now vote again
-	testSolidityAgainstCpp("grantVoteRight(address)", grantVoteRight, u160(2));
-	testSolidityAgainstCpp("vote(address,address)", vote, u160(2), u160(1));
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(0));
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(1));
-	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u160(2));
+	testSolidityAgainstCpp("grantVoteRight(address)", grantVoteRight, u256(2));
+	testSolidityAgainstCpp("vote(address,address)", vote, u256(2), u256(1));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(0));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(1));
+	testSolidityAgainstCpp("getVoteCount(address)", getVoteCount, u256(2));
 }
 
 BOOST_AUTO_TEST_CASE(mapping_state_inc_dec)
@@ -1260,7 +1260,7 @@ BOOST_AUTO_TEST_CASE(multiple_elementary_accessors)
 	BOOST_CHECK(callContractFunction("data()") == encodeArgs(8));
 	BOOST_CHECK(callContractFunction("name()") == encodeArgs("Celina"));
 	BOOST_CHECK(callContractFunction("a_hash()") == encodeArgs(dev::sha3(bytes(1, 0x7b))));
-	BOOST_CHECK(callContractFunction("an_address()") == encodeArgs(toBigEndian(u160(0x1337))));
+	BOOST_CHECK(callContractFunction("an_address()") == encodeArgs(toBigEndian(u256(0x1337))));
 	BOOST_CHECK(callContractFunction("super_secret_data()") == bytes());
 }
 
@@ -1539,7 +1539,7 @@ BOOST_AUTO_TEST_CASE(send_ether)
 							 "}\n";
 	u256 amount(130);
 	compileAndRun(sourceCode, amount + 1);
-	u160 address(23);
+	u256 address(23);
 	BOOST_CHECK(callContractFunction("a(address,uint256)", address, amount) == encodeArgs(1));
 	BOOST_CHECK_EQUAL(m_state.balance(address), amount);
 }
@@ -1651,7 +1651,7 @@ BOOST_AUTO_TEST_CASE(suicide)
 							 "}\n";
 	u256 amount(130);
 	compileAndRun(sourceCode, amount);
-	u160 address(23);
+	u256 address(23);
 	BOOST_CHECK(callContractFunction("a(address)", address) == bytes());
 	BOOST_CHECK(!m_state.addressHasCode(m_contractAddress));
 	BOOST_CHECK_EQUAL(m_state.balance(address), amount);
@@ -1667,7 +1667,7 @@ BOOST_AUTO_TEST_CASE(selfdestruct)
 							 "}\n";
 	u256 amount(130);
 	compileAndRun(sourceCode, amount);
-	u160 address(23);
+	u256 address(23);
 	BOOST_CHECK(callContractFunction("a(address)", address) == bytes());
 	BOOST_CHECK(!m_state.addressHasCode(m_contractAddress));
 	BOOST_CHECK_EQUAL(m_state.balance(address), amount);
@@ -1736,7 +1736,7 @@ BOOST_AUTO_TEST_CASE(ecrecover)
 	byte v = 28;
 	u256 r("0x73b1693892219d736caba55bdb67216e485557ea6b6af75f37096c9aa6a5a75f");
 	u256 s("0xeeb940b1d03b21e36b0e47e79769f095fe2ab855bd91e3a38756b7d75a9c4549");
-	u160 addr("0xa94f5374fce5edbc8e2a8697c15331677e6ebf0b");
+	u256 addr("0xa94f5374fce5edbc8e2a8697c15331677e6ebf0b");
 	BOOST_CHECK(callContractFunction("a(bytes32,uint8,bytes32,bytes32)", h, v, r, s) == encodeArgs(addr));
 }
 
@@ -1761,7 +1761,7 @@ BOOST_AUTO_TEST_CASE(inter_contract_calls)
 			}
 		})";
 	compileAndRun(sourceCode, 0, "Helper");
-	u160 const c_helperAddress = m_contractAddress;
+	u256 const c_helperAddress = m_contractAddress;
 	compileAndRun(sourceCode, 0, "Main");
 	BOOST_REQUIRE(callContractFunction("setHelper(address)", c_helperAddress) == bytes());
 	BOOST_REQUIRE(callContractFunction("getHelper()", c_helperAddress) == encodeArgs(c_helperAddress));
@@ -1791,7 +1791,7 @@ BOOST_AUTO_TEST_CASE(inter_contract_calls_with_complex_parameters)
 			}
 		})";
 	compileAndRun(sourceCode, 0, "Helper");
-	u160 const c_helperAddress = m_contractAddress;
+	u256 const c_helperAddress = m_contractAddress;
 	compileAndRun(sourceCode, 0, "Main");
 	BOOST_REQUIRE(callContractFunction("setHelper(address)", c_helperAddress) == bytes());
 	BOOST_REQUIRE(callContractFunction("getHelper()", c_helperAddress) == encodeArgs(c_helperAddress));
@@ -1822,7 +1822,7 @@ BOOST_AUTO_TEST_CASE(inter_contract_calls_accessing_this)
 			}
 		})";
 	compileAndRun(sourceCode, 0, "Helper");
-	u160 const c_helperAddress = m_contractAddress;
+	u256 const c_helperAddress = m_contractAddress;
 	compileAndRun(sourceCode, 0, "Main");
 	BOOST_REQUIRE(callContractFunction("setHelper(address)", c_helperAddress) == bytes());
 	BOOST_REQUIRE(callContractFunction("getHelper()", c_helperAddress) == encodeArgs(c_helperAddress));
@@ -1853,7 +1853,7 @@ BOOST_AUTO_TEST_CASE(calls_to_this)
 			}
 		})";
 	compileAndRun(sourceCode, 0, "Helper");
-	u160 const c_helperAddress = m_contractAddress;
+	u256 const c_helperAddress = m_contractAddress;
 	compileAndRun(sourceCode, 0, "Main");
 	BOOST_REQUIRE(callContractFunction("setHelper(address)", c_helperAddress) == bytes());
 	BOOST_REQUIRE(callContractFunction("getHelper()", c_helperAddress) == encodeArgs(c_helperAddress));
@@ -1888,7 +1888,7 @@ BOOST_AUTO_TEST_CASE(inter_contract_calls_with_local_vars)
 			}
 		})";
 	compileAndRun(sourceCode, 0, "Helper");
-	u160 const c_helperAddress = m_contractAddress;
+	u256 const c_helperAddress = m_contractAddress;
 	compileAndRun(sourceCode, 0, "Main");
 	BOOST_REQUIRE(callContractFunction("setHelper(address)", c_helperAddress) == bytes());
 	BOOST_REQUIRE(callContractFunction("getHelper()", c_helperAddress) == encodeArgs(c_helperAddress));
@@ -1918,7 +1918,7 @@ BOOST_AUTO_TEST_CASE(fixed_bytes_in_calls)
 			}
 		})";
 	compileAndRun(sourceCode, 0, "Helper");
-	u160 const c_helperAddress = m_contractAddress;
+	u256 const c_helperAddress = m_contractAddress;
 	compileAndRun(sourceCode, 0, "Main");
 	BOOST_REQUIRE(callContractFunction("setHelper(address)", c_helperAddress) == bytes());
 	BOOST_REQUIRE(callContractFunction("getHelper()", c_helperAddress) == encodeArgs(c_helperAddress));
@@ -2463,7 +2463,7 @@ BOOST_AUTO_TEST_CASE(use_std_lib)
 	)";
 	m_addStandardSources = true;
 	u256 amount(130);
-	u160 address(23);
+	u256 address(23);
 	compileAndRun(sourceCode, amount, "Icarus");
 	u256 balanceBefore = m_state.balance(m_sender);
 	BOOST_CHECK(callContractFunction("kill()") == bytes());
@@ -2646,7 +2646,7 @@ BOOST_AUTO_TEST_CASE(event_lots_of_data)
 	callContractFunctionWithValue("deposit(bytes32)", value, id);
 	BOOST_REQUIRE_EQUAL(m_logs.size(), 1);
 	BOOST_CHECK_EQUAL(m_logs[0].address, m_contractAddress);
-	BOOST_CHECK(m_logs[0].data == encodeArgs((u160)m_sender, id, value, true));
+	BOOST_CHECK(m_logs[0].data == encodeArgs((u256)m_sender, id, value, true));
 	BOOST_REQUIRE_EQUAL(m_logs[0].topics.size(), 1);
 	BOOST_CHECK_EQUAL(m_logs[0].topics[0], dev::sha3(string("Deposit(address,bytes32,uint256,bool)")));
 }
@@ -2873,7 +2873,7 @@ BOOST_AUTO_TEST_CASE(generic_call)
 			}
 	)**";
 	compileAndRun(sourceCode, 0, "receiver");
-	u160 const c_receiverAddress = m_contractAddress;
+	u256 const c_receiverAddress = m_contractAddress;
 	compileAndRun(sourceCode, 50, "sender");
 	BOOST_REQUIRE(callContractFunction("doSend(address)", c_receiverAddress) == encodeArgs(23));
 	BOOST_CHECK_EQUAL(m_state.balance(m_contractAddress), 50 - 2);
@@ -2897,9 +2897,9 @@ BOOST_AUTO_TEST_CASE(generic_callcode)
 			}
 	)**";
 	compileAndRun(sourceCode, 0, "receiver");
-	u160 const c_receiverAddress = m_contractAddress;
+	u256 const c_receiverAddress = m_contractAddress;
 	compileAndRun(sourceCode, 50, "sender");
-	u160 const c_senderAddress = m_contractAddress;
+	u256 const c_senderAddress = m_contractAddress;
 	BOOST_CHECK(callContractFunction("doSend(address)", c_receiverAddress) == encodeArgs(0));
 	BOOST_CHECK(callContractFunction("received()") == encodeArgs(23));
 	m_contractAddress = c_receiverAddress;
@@ -2931,13 +2931,13 @@ BOOST_AUTO_TEST_CASE(generic_delegatecall)
 			}
 	)**";
 	compileAndRun(sourceCode, 0, "receiver");
-	u160 const c_receiverAddress = m_contractAddress;
+	u256 const c_receiverAddress = m_contractAddress;
 	compileAndRun(sourceCode, 50, "sender");
-	u160 const c_senderAddress = m_contractAddress;
+	u256 const c_senderAddress = m_contractAddress;
 	BOOST_CHECK(m_sender != c_senderAddress); // just for sanity
 	BOOST_CHECK(callContractFunctionWithValue("doSend(address)", 11, c_receiverAddress) == encodeArgs());
 	BOOST_CHECK(callContractFunction("received()") == encodeArgs(u256(23)));
-	BOOST_CHECK(callContractFunction("sender()") == encodeArgs(u160(m_sender)));
+	BOOST_CHECK(callContractFunction("sender()") == encodeArgs(u256(m_sender)));
 	BOOST_CHECK(callContractFunction("value()") == encodeArgs(u256(11)));
 	m_contractAddress = c_receiverAddress;
 	BOOST_CHECK(callContractFunction("received()") == encodeArgs(u256(0)));
@@ -2963,7 +2963,7 @@ BOOST_AUTO_TEST_CASE(library_call_in_homestead)
 	compileAndRun(sourceCode, 0, "Lib");
 	compileAndRun(sourceCode, 0, "Test", bytes(), map<string, Address>{{"Lib", m_contractAddress}});
 	BOOST_CHECK(callContractFunction("f()") == encodeArgs());
-	BOOST_CHECK(callContractFunction("sender()") == encodeArgs(u160(m_sender)));
+	BOOST_CHECK(callContractFunction("sender()") == encodeArgs(u256(m_sender)));
 }
 
 BOOST_AUTO_TEST_CASE(store_bytes)
@@ -4602,7 +4602,7 @@ BOOST_AUTO_TEST_CASE(failing_send)
 		}
 	)";
 	compileAndRun(sourceCode, 0, "Helper");
-	u160 const c_helperAddress = m_contractAddress;
+	u256 const c_helperAddress = m_contractAddress;
 	compileAndRun(sourceCode, 20, "Main");
 	BOOST_REQUIRE(callContractFunction("callHelper(address)", c_helperAddress) == encodeArgs(true, 20));
 }
@@ -5952,10 +5952,10 @@ BOOST_AUTO_TEST_CASE(reject_ether_sent_to_library)
 	compileAndRun(sourceCode, 10, "c");
 	BOOST_CHECK_EQUAL(m_state.balance(m_contractAddress), 10);
 	BOOST_CHECK_EQUAL(m_state.balance(libraryAddress), 0);
-	BOOST_CHECK(callContractFunction("f(address)", encodeArgs(u160(libraryAddress))) == encodeArgs(false));
+	BOOST_CHECK(callContractFunction("f(address)", encodeArgs(u256(libraryAddress))) == encodeArgs(false));
 	BOOST_CHECK_EQUAL(m_state.balance(m_contractAddress), 10);
 	BOOST_CHECK_EQUAL(m_state.balance(libraryAddress), 0);
-	BOOST_CHECK(callContractFunction("f(address)", encodeArgs(u160(m_contractAddress))) == encodeArgs(true));
+	BOOST_CHECK(callContractFunction("f(address)", encodeArgs(u256(m_contractAddress))) == encodeArgs(true));
 	BOOST_CHECK_EQUAL(m_state.balance(m_contractAddress), 10);
 	BOOST_CHECK_EQUAL(m_state.balance(libraryAddress), 0);
 }

@@ -113,7 +113,7 @@ public:
 	bool compile(std::string const& _sourceCode, bool _optimize = false);
 
 	/// Inserts the given addresses into the linker objects of all compiled contracts.
-	void link(std::map<std::string, h160> const& _libraries);
+	void link(std::map<std::string, h256> const& _libraries);
 
 	/// Tries to translate all source files into a language suitable for formal analysis.
 	/// @returns false on error.
