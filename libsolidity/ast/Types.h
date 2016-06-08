@@ -621,7 +621,7 @@ public:
 	{
 		return encodingType()->calldataEncodedSize(_padded);
 	}
-	virtual unsigned storageBytes() const override { return 20; }
+	virtual unsigned storageBytes() const override { return 32; }
 	virtual bool canLiveOutsideStorage() const override { return true; }
 	virtual bool isValueType() const override { return true; }
 	virtual std::string toString(bool _short) const override;
@@ -630,7 +630,7 @@ public:
 	virtual MemberList::MemberMap nativeMembers(ContractDefinition const* _currentScope) const override;
 	virtual TypePointer encodingType() const override
 	{
-		return std::make_shared<IntegerType>(160, IntegerType::Modifier::Address);
+		return std::make_shared<IntegerType>(256, IntegerType::Modifier::Address);
 	}
 	virtual TypePointer interfaceType(bool _inLibrary) const override
 	{
