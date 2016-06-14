@@ -29,6 +29,8 @@
 #include <libsolidity/interface/Utils.h>
 #include <libsolidity/ast/AST.h>
 
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
 using namespace std;
 using namespace dev;
 using namespace dev::solidity;
@@ -364,7 +366,8 @@ MemberList::MemberMap IntegerType::nativeMembers(ContractDefinition const*) cons
 			{"call", make_shared<FunctionType>(strings(), strings{"bool"}, FunctionType::Location::Bare, true)},
 			{"callcode", make_shared<FunctionType>(strings(), strings{"bool"}, FunctionType::Location::BareCallCode, true)},
 			{"delegatecall", make_shared<FunctionType>(strings(), strings{"bool"}, FunctionType::Location::BareDelegateCall, true)},
-			{"send", make_shared<FunctionType>(strings{"uint"}, strings{"bool"}, FunctionType::Location::Send)}
+			{"send", make_shared<FunctionType>(strings{"uint"}, strings{"bool"}, FunctionType::Location::Send)},
+			{"sendasset", make_shared<FunctionType>(strings(), strings{"bool"}, FunctionType::Location::SendAsset, true)}
 		};
 	else
 		return MemberList::MemberMap();

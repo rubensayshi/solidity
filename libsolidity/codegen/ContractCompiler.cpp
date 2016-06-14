@@ -34,6 +34,8 @@ using namespace std;
 using namespace dev;
 using namespace dev::solidity;
 
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
 /**
  * Simple helper class to ensure that the stack height is the same at certain places in the code.
  */
@@ -742,11 +744,16 @@ bool ContractCompiler::visit(VariableDeclarationStatement const& _variableDeclar
 
 bool ContractCompiler::visit(ExpressionStatement const& _expressionStatement)
 {
+	cerr << "m_context.stackHeight(" << __FILE__ << ":" << __LINE__ << "): " << "\n";
+
 	StackHeightChecker checker(m_context);
 	CompilerContext::LocationSetter locationSetter(m_context, _expressionStatement);
 	Expression const& expression = _expressionStatement.expression();
 	compileExpression(expression);
 	CompilerUtils(m_context).popStackElement(*expression.annotation().type);
+
+	cerr << "m_context.stackHeight(" << __FILENAME__ << ":" << __LINE__ << "): " << "\n";
+
 	checker.check();
 	return false;
 }

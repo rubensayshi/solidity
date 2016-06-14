@@ -797,6 +797,7 @@ public:
 		SHA256, ///< CALL to special contract for sha256
 		RIPEMD160, ///< CALL to special contract for ripemd160
 		SendAsset, ///< CALL to special contract for sendasset
+		AddressSendAsset, ///< CALL to special contract for sendasset as member FN of address
 		Log0,
 		Log1,
 		Log2,
@@ -821,6 +822,7 @@ public:
 	explicit FunctionType(VariableDeclaration const& _varDecl);
 	/// Creates the function type of an event.
 	explicit FunctionType(EventDefinition const& _event);
+
 	FunctionType(
 		strings const& _parameterTypes,
 		strings const& _returnParameterTypes,
