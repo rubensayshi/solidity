@@ -34,6 +34,8 @@
 using namespace std;
 using namespace boost::multiprecision::literals;
 
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
 namespace dev
 {
 namespace solidity
@@ -401,6 +403,10 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 {
 	CompilerContext::LocationSetter locationSetter(m_context, _functionCall);
 	using Location = FunctionType::Location;
+
+	cerr << __FILENAME__ << ":" << __LINE__ << " visit::FunctionCall";
+	cerr << "==========================================\n";
+
 	if (_functionCall.annotation().isTypeConversion)
 	{
 		solAssert(_functionCall.arguments().size() == 1, "");
@@ -466,6 +472,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 		if (function.bound())
 			// Only delegatecall and internal functions can be bound, this might be lifted later.
 			solAssert(function.location() == Location::DelegateCall || function.location() == Location::Internal, "");
+		cerr << __FILENAME__ << ":" << __LINE__ << " function.location() =>  " << static_cast<int>(function.location()) << "\n";
 		switch (function.location())
 		{
 		case Location::Internal:
@@ -503,6 +510,8 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 		case Location::Bare:
 		case Location::BareCallCode:
 		case Location::BareDelegateCall:
+
+			cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
 			_functionCall.expression().accept(*this);
 			appendExternalFunctionCall(function, arguments);
 			break;
@@ -567,40 +576,125 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 			arguments.front()->accept(*this);
 			break;
 		case Location::Send:
-			_functionCall.expression().accept(*this);
+		{
+			cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+			cerr << __FILENAME__ << ":" << __LINE__ << " utils().convertType() =>  " << arguments.front()->annotation().type.get()->toString() << ", " << function.parameterTypes().front().get()->toString() << "\n";
+
+			cerr << __FILENAME__ << ":" << __LINE__ << " arguments.size() =>  " << static_cast<int>(arguments.size()) << "\n";
+
+			_functionCall.expression().accept(*this); // this does something
+
 			m_context << u256(0); // do not send gas (there still is the stipend)
+
+			cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+
 			arguments.front()->accept(*this);
+
+			cerr << __FILENAME__ << ":" << __LINE__ << " arguments.size() =>  " << static_cast<int>(arguments.size()) << "\n";
+			cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+
+			// value?
 			utils().convertType(
-				*arguments.front()->annotation().type,
-				*function.parameterTypes().front(), true
+					*arguments.front()->annotation().type,
+					*function.parameterTypes().front(), true
 			);
+
+			cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+
 			appendExternalFunctionCall(
-				FunctionType(
-					TypePointers{},
-					TypePointers{},
-					strings(),
-					strings(),
-					Location::Bare,
-					false,
-					nullptr,
-					true,
-					true
-				),
-				{}
+					FunctionType(
+							TypePointers{},
+							TypePointers{},
+							strings(),
+							strings(),
+							Location::Bare,
+							false,
+							nullptr,
+							true,
+							true
+					),
+					{}
 			);
 			break;
+		}
+		case Location::AddressSendAsset:
+		{
+			cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+
+			_functionCall.expression().accept(*this);
+
+			cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+
+			m_context << 5; // reserved address
+
+			cerr << __FILENAME__ << ":" << __LINE__ << " function.sizeOnStack() =>  " << static_cast<int>(function.sizeOnStack()) << "\n";
+			cerr << __FILENAME__ << ":" << __LINE__ << " function.isBareCall() =>  " << static_cast<int>(function.isBareCall()) << "\n";
+			cerr << __FILENAME__ << ":" << __LINE__ << " function.valueSet() =>  " << static_cast<int>(function.valueSet()) << "\n";
+			cerr << __FILENAME__ << ":" << __LINE__ << " function.gasSet() =>  " << static_cast<int>(function.gasSet()) << "\n";
+			cerr << __FILENAME__ << ":" << __LINE__ << " function.location() =>  " << static_cast<int>(function.location()) << "\n";
+			cerr << __FILENAME__ << ":" << __LINE__ << " arguments.size() =>  " << static_cast<int>(arguments.size()) << "\n";
+
+			cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+			appendExternalFunctionCall(function, arguments);
+
+			cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+			break;
+		}
+			case Location::ECRecover:
+			case Location::SHA256:
+			case Location::RIPEMD160:
+			{
+				cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+				_functionCall.expression().accept(*this);
+				cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+				static const map<Location, u256> contractAddresses{{Location::ECRecover, 1},
+																   {Location::SHA256, 2},
+																   {Location::RIPEMD160, 3}};
+
+				cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+				m_context << contractAddresses.find(function.location())->second;
+
+				cerr << __FILENAME__ << ":" << __LINE__ << " function.sizeOnStack() =>  " << static_cast<int>(function.sizeOnStack()) << "\n";
+				cerr << __FILENAME__ << ":" << __LINE__ << " function.isBareCall() =>  " << static_cast<int>(function.isBareCall()) << "\n";
+				cerr << __FILENAME__ << ":" << __LINE__ << " function.valueSet() =>  " << static_cast<int>(function.valueSet()) << "\n";
+				cerr << __FILENAME__ << ":" << __LINE__ << " function.gasSet() =>  " << static_cast<int>(function.gasSet()) << "\n";
+				cerr << __FILENAME__ << ":" << __LINE__ << " function.location() =>  " << static_cast<int>(function.location()) << "\n";
+				cerr << __FILENAME__ << ":" << __LINE__ << " arguments.size() =>  " << static_cast<int>(arguments.size()) << "\n";
+
+				for (unsigned i = function.sizeOnStack(); i > 0; --i)
+					m_context << swapInstruction(i);
+
+				cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+				appendExternalFunctionCall(function, arguments);
+
+				cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+				break;
+			}
 			case Location::SendAsset:
 			{
+				cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
 				_functionCall.expression().accept(*this);
+				cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
 
 				// create 160bit int with CNTRPRTY prefix, need to go through u256 becuase there's no _cppui160
 				constexpr u256 prefix256 = 0x434e545250525459000000000000000000000000_cppui256;
 				const u160 prefix = u160(prefix256);
+
 				u160 contractAddress = prefix + 0x1;
 
 				m_context << contractAddress;
 
+				cerr << __FILENAME__ << ":" << __LINE__ << " function.sizeOnStack() =>  " << static_cast<int>(function.sizeOnStack()) << "\n";
+				cerr << __FILENAME__ << ":" << __LINE__ << " function.isBareCall() =>  " << static_cast<int>(function.isBareCall()) << "\n";
+				cerr << __FILENAME__ << ":" << __LINE__ << " function.valueSet() =>  " << static_cast<int>(function.valueSet()) << "\n";
+				cerr << __FILENAME__ << ":" << __LINE__ << " function.gasSet() =>  " << static_cast<int>(function.gasSet()) << "\n";
+				cerr << __FILENAME__ << ":" << __LINE__ << " function.location() =>  " << static_cast<int>(function.location()) << "\n";
+				cerr << __FILENAME__ << ":" << __LINE__ << " arguments.size() =>  " << static_cast<int>(arguments.size()) << "\n";
+
+				cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
 				appendExternalFunctionCall(function, arguments);
+
+				cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
 				break;
 			}
 		case Location::Selfdestruct:
@@ -720,20 +814,6 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 				m_context << Instruction::MULMOD;
 			break;
 		}
-		case Location::ECRecover:
-		case Location::SHA256:
-		case Location::RIPEMD160:
-		{
-			_functionCall.expression().accept(*this);
-			static const map<Location, u256> contractAddresses{{Location::ECRecover, 1},
-															   {Location::SHA256, 2},
-															   {Location::RIPEMD160, 3}};
-			m_context << contractAddresses.find(function.location())->second;
-			for (unsigned i = function.sizeOnStack(); i > 0; --i)
-				m_context << swapInstruction(i);
-			appendExternalFunctionCall(function, arguments);
-			break;
-		}
 		case Location::ByteArrayPush:
 		case Location::ArrayPush:
 		{
@@ -833,29 +913,34 @@ bool ExpressionCompiler::visit(NewExpression const&)
 
 bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 {
+	cerr << __FILENAME__ << ":" << __LINE__ << " visit::MemberAccess \n";
+	cerr << "------------------------------------------\n";
+
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
 	CompilerContext::LocationSetter locationSetter(m_context, _memberAccess);
 	// Check whether the member is a bound function.
 	ASTString const& member = _memberAccess.memberName();
-	if (auto funType = dynamic_cast<FunctionType const*>(_memberAccess.annotation().type.get()))
-		if (funType->bound())
-		{
+	cerr << __FILENAME__ << ":" << __LINE__ << " member() =>  " << member << "\n";
+	if (auto funType = dynamic_cast<FunctionType const*>(_memberAccess.annotation().type.get())) {
+		cerr << __FILENAME__ << ":" << __LINE__ << " funType->bound() =>  " << static_cast<int>(funType->bound()) << "\n";
+		cerr << __FILENAME__ << ":" << __LINE__ << " funType->location() =>  " << static_cast<int>(funType->location()) << "\n";
+
+		if (funType->bound()) {
 			_memberAccess.expression().accept(*this);
 			utils().convertType(
-				*_memberAccess.expression().annotation().type,
-				*funType->selfType(),
-				true
+					*_memberAccess.expression().annotation().type,
+					*funType->selfType(),
+					true
 			);
-			if (funType->location() == FunctionType::Location::Internal)
-			{
+			if (funType->location() == FunctionType::Location::Internal) {
 				m_context << m_context.functionEntryLabel(
-					dynamic_cast<FunctionDefinition const&>(funType->declaration())
+						dynamic_cast<FunctionDefinition const &>(funType->declaration())
 				).pushTag();
 				utils().moveIntoStack(funType->selfType()->sizeOnStack(), 1);
 			}
-			else
-			{
+			else {
 				solAssert(funType->location() == FunctionType::Location::DelegateCall, "");
-				auto contract = dynamic_cast<ContractDefinition const*>(funType->declaration().scope());
+				auto contract = dynamic_cast<ContractDefinition const *>(funType->declaration().scope());
 				solAssert(contract && contract->isLibrary(), "");
 				m_context.appendLibraryAddress(contract->name());
 				m_context << funType->externalIdentifier();
@@ -863,11 +948,15 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			}
 			return false;
 		}
+	}
 
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
 	// Special processing for TypeType because we do not want to visit the library itself
 	// for internal functions.
 	if (TypeType const* type = dynamic_cast<TypeType const*>(_memberAccess.expression().annotation().type.get()))
 	{
+		cerr << __FILENAME__ << ":" << __LINE__ << " actualType() =>  " << type->actualType()->toString() << "\n";
+
 		if (dynamic_cast<ContractType const*>(type->actualType().get()))
 		{
 			if (auto funType = dynamic_cast<FunctionType const*>(_memberAccess.annotation().type.get()))
@@ -900,7 +989,11 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 		return false;
 	}
 
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
 	_memberAccess.expression().accept(*this);
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+
+	cerr << __FILENAME__ << ":" << __LINE__ << " _memberAccess.expression().annotation().type =>  " << _memberAccess.expression().annotation().type->toString() << "\n";
 	switch (_memberAccess.expression().annotation().type->category())
 	{
 	case Type::Category::Contract:
@@ -934,6 +1027,10 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 				// not found in contract, search in members inherited from address
 				alsoSearchInteger = true;
 		}
+
+		cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+		cerr << __FILENAME__ << ":" << __LINE__ << " alsoSearchInteger =>  " << static_cast<int>(alsoSearchInteger) << "\n";
+
 		if (!alsoSearchInteger)
 			break;
 	}
@@ -947,7 +1044,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			);
 			m_context << Instruction::BALANCE;
 		}
-		else if ((set<string>{"send", "call", "callcode", "delegatecall"}).count(member))
+		else if ((set<string>{"send", "sendasset", "call", "callcode", "delegatecall"}).count(member))
 			utils().convertType(
 				*_memberAccess.expression().annotation().type,
 				IntegerType(0, IntegerType::Modifier::Address),
@@ -955,10 +1052,12 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			);
 		else
 			BOOST_THROW_EXCEPTION(InternalCompilerError() << errinfo_comment("Invalid member access to integer."));
+		cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
 		break;
 	case Type::Category::Function:
 		solAssert(!!_memberAccess.expression().annotation().type->memberType(member),
 				 "Invalid member access to function.");
+		cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
 		break;
 	case Type::Category::Magic:
 		// we can ignore the kind of magic and only look at the name of the member
@@ -989,6 +1088,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 				<< (u256(0xffffffff) << (256 - 32)) << Instruction::AND;
 		else
 			BOOST_THROW_EXCEPTION(InternalCompilerError() << errinfo_comment("Unknown magic member."));
+		cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
 		break;
 	case Type::Category::Struct:
 	{
@@ -1067,6 +1167,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 	default:
 		BOOST_THROW_EXCEPTION(InternalCompilerError() << errinfo_comment("Member access to unknown type."));
 	}
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
 	return false;
 }
 
@@ -1392,6 +1493,17 @@ void ExpressionCompiler::appendExternalFunctionCall(
 		_arguments.size() == _functionType.parameterTypes().size(), ""
 	);
 
+	cerr << __FILENAME__ << ":" << __LINE__ << " ExpressionCompiler::appendExternalFunctionCall \n";
+	cerr << "------------------------------------------\n";
+
+
+	cerr << __FILENAME__ << ":" << __LINE__ << " _functionType.gasSet() =>  " << static_cast<int>(_functionType.gasSet()) << "\n";
+	cerr << __FILENAME__ << ":" << __LINE__ << " _functionType.valueSet() =>  " << static_cast<int>(_functionType.valueSet()) << "\n";
+	cerr << __FILENAME__ << ":" << __LINE__ << " _functionType.bound() =>  " << static_cast<int>(_functionType.bound()) << "\n";
+	cerr << __FILENAME__ << ":" << __LINE__ << " _arguments.size() =>  " << static_cast<int>(_arguments.size()) << "\n";
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+
+
 	// Assumed stack content here:
 	// <stack top>
 	// value [if _functionType.valueSet()]
@@ -1406,9 +1518,13 @@ void ExpressionCompiler::appendExternalFunctionCall(
 	unsigned gasStackPos = m_context.currentToBaseStackOffset(gasValueSize);
 	unsigned valueStackPos = m_context.currentToBaseStackOffset(1);
 
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+
 	// move self object to top
 	if (_functionType.bound())
 		utils().moveToStackTop(gasValueSize, _functionType.selfType()->sizeOnStack());
+
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
 
 	using FunctionKind = FunctionType::Location;
 	FunctionKind funKind = _functionType.location();
@@ -1426,6 +1542,8 @@ void ExpressionCompiler::appendExternalFunctionCall(
 			retSize += retType->calldataEncodedSize();
 		}
 
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+
 	// Evaluate arguments.
 	TypePointers argumentTypes;
 	TypePointers parameterTypes = _functionType.parameterTypes();
@@ -1434,6 +1552,8 @@ void ExpressionCompiler::appendExternalFunctionCall(
 		!_arguments.empty() &&
 		_arguments.front()->annotation().type->mobileType()->calldataEncodedSize(false) ==
 			CompilerUtils::dataStartOffset;
+
+	cerr << __FILENAME__ << ":" << __LINE__ << " manualFunctionId =>  " << static_cast<int>(manualFunctionId) << "\n";
 	if (manualFunctionId)
 	{
 		// If we have a Bare* and the first type has exactly 4 bytes, use it as
@@ -1460,6 +1580,8 @@ void ExpressionCompiler::appendExternalFunctionCall(
 		argumentTypes.push_back(_arguments[i]->annotation().type);
 	}
 
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+
 	// Copy function identifier to memory.
 	utils().fetchFreeMemoryPointer();
 	if (!_functionType.isBareCall() || manualFunctionId)
@@ -1478,6 +1600,8 @@ void ExpressionCompiler::appendExternalFunctionCall(
 		isCallCode || isDelegateCall
 	);
 
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+
 	// Stack now:
 	// <stack top>
 	// input_memory_end
@@ -1486,12 +1610,16 @@ void ExpressionCompiler::appendExternalFunctionCall(
 	// function identifier [unless bare]
 	// contract address
 
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+
 	// Output data will replace input data.
 	// put on stack: <size of output> <memory pos of output> <size of input> <memory pos of input>
 	m_context << u256(retSize);
 	utils().fetchFreeMemoryPointer();
 	m_context << Instruction::DUP1 << Instruction::DUP4 << Instruction::SUB;
 	m_context << Instruction::DUP2;
+
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
 
 	// CALL arguments: outSize, outOff, inSize, inOff (already present up to here)
 	// [value,] addr, gas (stack top)
@@ -1502,6 +1630,8 @@ void ExpressionCompiler::appendExternalFunctionCall(
 	else
 		m_context << u256(0);
 	m_context << dupInstruction(m_context.baseToCurrentStackOffset(contractStackPos));
+
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
 
 	if (_functionType.gasSet())
 		m_context << dupInstruction(m_context.baseToCurrentStackOffset(gasStackPos));
@@ -1519,6 +1649,9 @@ void ExpressionCompiler::appendExternalFunctionCall(
 			Instruction::GAS <<
 			Instruction::SUB;
 	}
+
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+
 	if (isDelegateCall)
 		m_context << Instruction::DELEGATECALL;
 	else if (isCallCode)
@@ -1526,11 +1659,15 @@ void ExpressionCompiler::appendExternalFunctionCall(
 	else
 		m_context << Instruction::CALL;
 
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+
 	unsigned remainsSize =
 		2 + // contract address, input_memory_end
 		_functionType.valueSet() +
 		_functionType.gasSet() +
 		(!_functionType.isBareCall() || manualFunctionId);
+
+	cerr << __FILENAME__ << ":" << __LINE__ << " returnSuccessCondition =>  " << static_cast<int>(returnSuccessCondition) << "\n";
 
 	if (returnSuccessCondition)
 		m_context << swapInstruction(remainsSize);
@@ -1541,7 +1678,13 @@ void ExpressionCompiler::appendExternalFunctionCall(
 		m_context.appendConditionalJumpTo(m_context.errorTag());
 	}
 
+	cerr << __FILENAME__ << ":" << __LINE__ << " remainsSize =>  " << static_cast<int>(remainsSize) << "\n";
+
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
+
 	utils().popStackSlots(remainsSize);
+
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
 
 	if (returnSuccessCondition)
 	{
@@ -1569,6 +1712,8 @@ void ExpressionCompiler::appendExternalFunctionCall(
 		else
 			m_context << Instruction::POP;
 	}
+
+	cerr << __FILENAME__ << ":" << __LINE__ << " m_context.stackHeight() =>  " << static_cast<int>(m_context.stackHeight()) << "\n";
 }
 
 void ExpressionCompiler::appendExpressionCopyToMemory(Type const& _expectedType, Expression const& _expression)
