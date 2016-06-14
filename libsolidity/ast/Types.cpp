@@ -1959,6 +1959,7 @@ bool FunctionType::isBareCall() const
 	case Location::ECRecover:
 	case Location::SHA256:
 	case Location::RIPEMD160:
+	case Location::SendAsset:
 		return true;
 	default:
 		return false;
