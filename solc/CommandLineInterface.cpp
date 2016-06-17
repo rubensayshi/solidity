@@ -308,7 +308,41 @@ void CommandLineInterface::handleFormal()
 
 void CommandLineInterface::readInputFilesAndConfigureRemappings()
 {
-	if (!m_args.count("input-file"))
+	bool usestdin = !m_args.count("input-file");
+
+	for (string path: m_args["input-file"].as<vector<string>>())
+	{
+		if (path == "-")
+		{
+			usestdin = true;
+			continue;
+		}
+
+		auto eq = find(path.begin(), path.end(), '=');
+		if (eq != path.end())
+			path = string(eq + 1, path.end());
+		else
+		{
+			auto infile = boost::filesystem::path(path);
+			if (!boost::filesystem::exists(infile))
+			{
+				cerr << "Skipping non existant input file \"" << infile << "\"" << endl;
+				continue;
+			}
+
+			if (!boost::filesystem::is_regular_file(infile))
+			{
+				cerr << "\"" << infile << "\" is not a valid file. Skipping" << endl;
+				continue;
+			}
+
+			m_sourceCodes[infile.string()] = dev::contentsString(infile.string());
+			path = boost::filesystem::canonical(infile).string();
+		}
+		m_allowedDirectories.push_back(boost::filesystem::path(path).remove_filename());
+	}
+
+	if (usestdin)
 	{
 		string s;
 		while (!cin.eof())
@@ -317,32 +351,6 @@ void CommandLineInterface::readInputFilesAndConfigureRemappings()
 			m_sourceCodes[g_stdinFileName].append(s + '\n');
 		}
 	}
-	else
-		for (string path: m_args["input-file"].as<vector<string>>())
-		{
-			auto eq = find(path.begin(), path.end(), '=');
-			if (eq != path.end())
-				path = string(eq + 1, path.end());
-			else
-			{
-				auto infile = boost::filesystem::path(path);
-				if (!boost::filesystem::exists(infile))
-				{
-					cerr << "Skipping non existant input file \"" << infile << "\"" << endl;
-					continue;
-				}
-
-				if (!boost::filesystem::is_regular_file(infile))
-				{
-					cerr << "\"" << infile << "\" is not a valid file. Skipping" << endl;
-					continue;
-				}
-
-				m_sourceCodes[infile.string()] = dev::contentsString(infile.string());
-				path = boost::filesystem::canonical(infile).string();
-			}
-			m_allowedDirectories.push_back(boost::filesystem::path(path).remove_filename());
-		}
 }
 
 bool CommandLineInterface::parseLibraryOption(string const& _input)
