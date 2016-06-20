@@ -306,9 +306,35 @@ void CommandLineInterface::handleFormal()
 		cout << "Formal version:" << endl << m_compiler->formalTranslation() << endl;
 }
 
-void CommandLineInterface::readInputFilesAndConfigureRemappings()
+void CommandLineInterface::readInputFilesAndConfigureRemappings(bool usestdin, vector<string> inputFiles)
 {
-	if (!m_args.count("input-file"))
+	for (string path: inputFiles)
+	{
+		auto eq = find(path.begin(), path.end(), '=');
+		if (eq != path.end())
+			path = string(eq + 1, path.end());
+		else
+		{
+			auto infile = boost::filesystem::path(path);
+			if (!boost::filesystem::exists(infile))
+			{
+				cerr << "Skipping non existant input file \"" << infile << "\"" << endl;
+				continue;
+			}
+
+			if (!boost::filesystem::is_regular_file(infile))
+			{
+				cerr << "\"" << infile << "\" is not a valid file. Skipping" << endl;
+				continue;
+			}
+
+			m_sourceCodes[infile.string()] = dev::contentsString(infile.string());
+			path = boost::filesystem::canonical(infile).string();
+		}
+		m_allowedDirectories.push_back(boost::filesystem::path(path).remove_filename());
+	}
+
+	if (usestdin)
 	{
 		string s;
 		while (!cin.eof())
@@ -317,32 +343,6 @@ void CommandLineInterface::readInputFilesAndConfigureRemappings()
 			m_sourceCodes[g_stdinFileName].append(s + '\n');
 		}
 	}
-	else
-		for (string path: m_args["input-file"].as<vector<string>>())
-		{
-			auto eq = find(path.begin(), path.end(), '=');
-			if (eq != path.end())
-				path = string(eq + 1, path.end());
-			else
-			{
-				auto infile = boost::filesystem::path(path);
-				if (!boost::filesystem::exists(infile))
-				{
-					cerr << "Skipping non existant input file \"" << infile << "\"" << endl;
-					continue;
-				}
-
-				if (!boost::filesystem::is_regular_file(infile))
-				{
-					cerr << "\"" << infile << "\" is not a valid file. Skipping" << endl;
-					continue;
-				}
-
-				m_sourceCodes[infile.string()] = dev::contentsString(infile.string());
-				path = boost::filesystem::canonical(infile).string();
-			}
-			m_allowedDirectories.push_back(boost::filesystem::path(path).remove_filename());
-		}
 }
 
 bool CommandLineInterface::parseLibraryOption(string const& _input)
@@ -509,7 +509,31 @@ Allowed options)",
 
 bool CommandLineInterface::processInput()
 {
-	readInputFilesAndConfigureRemappings();
+	// determine if we should use stdin
+	bool usestdin = false;
+	vector<string> inputFiles;
+
+	if (!m_args.count("input-file")) {
+		inputFiles = vector<string>();
+		usestdin = true;
+	} else {
+		inputFiles = m_args["input-file"].as<vector<string>>();
+
+		if (inputFiles.size() == 0)
+			usestdin = true;
+		else
+			// search for "-" in input files to enable stdin (and filter out the "-")
+			for (unsigned idx = 0; idx < inputFiles.size(); ++idx) {
+				string path = inputFiles[idx];
+				if (path == "-") {
+					inputFiles.erase(inputFiles.begin() + idx);
+					usestdin = true;
+					break;
+				}
+			}
+	}
+
+	readInputFilesAndConfigureRemappings(usestdin, inputFiles);
 
 	if (m_args.count("libraries"))
 		for (string const& library: m_args["libraries"].as<vector<string>>())
@@ -564,8 +588,8 @@ bool CommandLineInterface::processInput()
 	auto scannerFromSourceName = [&](string const& _sourceName) -> solidity::Scanner const& { return m_compiler->scanner(_sourceName); };
 	try
 	{
-		if (m_args.count("input-file"))
-			m_compiler->setRemappings(m_args["input-file"].as<vector<string>>());
+		if (inputFiles.size())
+			m_compiler->setRemappings(inputFiles);
 		for (auto const& sourceCode: m_sourceCodes)
 			m_compiler->addSource(sourceCode.first, sourceCode.second);
 		// TODO: Perhaps we should not compile unless requested
