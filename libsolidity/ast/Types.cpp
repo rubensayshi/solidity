@@ -29,6 +29,8 @@
 #include <libsolidity/interface/Utils.h>
 #include <libsolidity/ast/AST.h>
 
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
 using namespace std;
 using namespace dev;
 using namespace dev::solidity;
@@ -250,7 +252,7 @@ IntegerType::IntegerType(int _bits, IntegerType::Modifier _modifier):
 	m_bits(_bits), m_modifier(_modifier)
 {
 	if (isAddress())
-		m_bits = 160;
+		m_bits = 256;
 	solAssert(
 		m_bits > 0 && m_bits <= 256 && m_bits % 8 == 0,
 		"Invalid bit number for integer type: " + dev::toString(_bits)
@@ -364,7 +366,8 @@ MemberList::MemberMap IntegerType::nativeMembers(ContractDefinition const*) cons
 			{"call", make_shared<FunctionType>(strings(), strings{"bool"}, FunctionType::Location::Bare, true)},
 			{"callcode", make_shared<FunctionType>(strings(), strings{"bool"}, FunctionType::Location::BareCallCode, true)},
 			{"delegatecall", make_shared<FunctionType>(strings(), strings{"bool"}, FunctionType::Location::BareDelegateCall, true)},
-			{"send", make_shared<FunctionType>(strings{"uint"}, strings{"bool"}, FunctionType::Location::Send)}
+			{"send", make_shared<FunctionType>(strings{"uint"}, strings{"bool"}, FunctionType::Location::Send)},
+			{"sendasset", make_shared<FunctionType>(strings(), strings{"bool"}, FunctionType::Location::SendAsset, true)}
 		};
 	else
 		return MemberList::MemberMap();
@@ -1959,6 +1962,7 @@ bool FunctionType::isBareCall() const
 	case Location::ECRecover:
 	case Location::SHA256:
 	case Location::RIPEMD160:
+	case Location::SendAsset:
 		return true;
 	default:
 		return false;

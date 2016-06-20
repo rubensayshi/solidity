@@ -621,7 +621,7 @@ public:
 	{
 		return encodingType()->calldataEncodedSize(_padded);
 	}
-	virtual unsigned storageBytes() const override { return 20; }
+	virtual unsigned storageBytes() const override { return 32; }
 	virtual bool canLiveOutsideStorage() const override { return true; }
 	virtual bool isValueType() const override { return true; }
 	virtual std::string toString(bool _short) const override;
@@ -630,7 +630,7 @@ public:
 	virtual MemberList::MemberMap nativeMembers(ContractDefinition const* _currentScope) const override;
 	virtual TypePointer encodingType() const override
 	{
-		return std::make_shared<IntegerType>(160, IntegerType::Modifier::Address);
+		return std::make_shared<IntegerType>(256, IntegerType::Modifier::Address);
 	}
 	virtual TypePointer interfaceType(bool _inLibrary) const override
 	{
@@ -796,6 +796,8 @@ public:
 		ECRecover, ///< CALL to special contract for ecrecover
 		SHA256, ///< CALL to special contract for sha256
 		RIPEMD160, ///< CALL to special contract for ripemd160
+		SendAsset, ///< CALL to special contract for sendasset
+		AddressSendAsset, ///< CALL to special contract for sendasset as member FN of address
 		Log0,
 		Log1,
 		Log2,
@@ -820,6 +822,7 @@ public:
 	explicit FunctionType(VariableDeclaration const& _varDecl);
 	/// Creates the function type of an event.
 	explicit FunctionType(EventDefinition const& _event);
+
 	FunctionType(
 		strings const& _parameterTypes,
 		strings const& _returnParameterTypes,
