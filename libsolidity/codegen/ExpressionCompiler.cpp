@@ -603,6 +603,22 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 				appendExternalFunctionCall(function, arguments);
 				break;
 			}
+			case Location::ReceivedAsset:
+			{
+				_functionCall.expression().accept(*this);
+
+				// create 160bit int with CNTRPRTY prefix, need to go through u256 becuase there's no _cppui160
+				constexpr u256 prefix256 = 0x434e545250525459000000000000000000000000_cppui256;
+				const u160 prefix = u160(prefix256);
+
+				u160 contractAddress = prefix + 0x2;
+
+				m_context << contractAddress;
+
+				appendExternalFunctionCall(function, arguments);
+
+				break;
+			}
 		case Location::Selfdestruct:
 			arguments.front()->accept(*this);
 			utils().convertType(*arguments.front()->annotation().type, *function.parameterTypes().front(), true);

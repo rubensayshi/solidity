@@ -65,7 +65,9 @@ m_magicVariables(vector<shared_ptr<MagicVariableDeclaration const>>{make_shared<
 					make_shared<MagicVariableDeclaration>("ripemd160",
 							make_shared<FunctionType>(strings(), strings{"bytes20"}, FunctionType::Location::RIPEMD160, true)),
 					make_shared<MagicVariableDeclaration>("sendasset",
-							make_shared<FunctionType>(strings{"address", "uint", "bytes32"}, strings{"bool"}, FunctionType::Location::SendAsset))
+						    make_shared<FunctionType>(strings{"address", "uint", "bytes32"}, strings{"bool"}, FunctionType::Location::SendAsset)),
+					make_shared<MagicVariableDeclaration>("receivedasset",
+							make_shared<FunctionType>(strings{}, strings{"uint", "bytes32"}, FunctionType::Location::ReceivedAsset))
 	})
 {
 }

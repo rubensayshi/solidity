@@ -131,7 +131,7 @@ enum class Instruction: uint8_t
 	PUSH31,				///< place 31 byte item on stack
 	PUSH32,				///< place 32 byte item on stack
 
-	DUP1 = 0x80,		///< copies the highest item in the stack to the top of the stack
+	DUP1 = 0x80,		///< copies the highest item in the stack to the top of the stack  // 128
 	DUP2,				///< copies the second highest item in the stack to the top of the stack
 	DUP3,				///< copies the third highest item in the stack to the top of the stack
 	DUP4,				///< copies the 4th highest item in the stack to the top of the stack
@@ -148,7 +148,7 @@ enum class Instruction: uint8_t
 	DUP15,				///< copies the 15th highest item in the stack to the top of the stack
 	DUP16,				///< copies the 16th highest item in the stack to the top of the stack
 
-	SWAP1 = 0x90,		///< swaps the highest and second highest value on the stack
+	SWAP1 = 0x90,		///< swaps the highest and second highest value on the stack  // 144
 	SWAP2,				///< swaps the highest and third highest value on the stack
 	SWAP3,				///< swaps the highest and 4th highest value on the stack
 	SWAP4,				///< swaps the highest and 5th highest value on the stack
@@ -165,13 +165,13 @@ enum class Instruction: uint8_t
 	SWAP15,				///< swaps the highest and 16th highest value on the stack
 	SWAP16,				///< swaps the highest and 17th highest value on the stack
 
-	LOG0 = 0xa0,		///< Makes a log entry; no topics.
+	LOG0 = 0xa0,		///< Makes a log entry; no topics.  // 160
 	LOG1,				///< Makes a log entry; 1 topic.
 	LOG2,				///< Makes a log entry; 2 topics.
 	LOG3,				///< Makes a log entry; 3 topics.
 	LOG4,				///< Makes a log entry; 4 topics.
 
-	CREATE = 0xf0,		///< create a new account with associated code
+	CREATE = 0xf0,		///< create a new account with associated code  // 240
 	CALL,				///< message-call into an account
 	CALLCODE,			///< message-call with another account's code only
 	RETURN,				///< halt execution returning output data

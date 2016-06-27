@@ -1960,6 +1960,7 @@ bool FunctionType::isBareCall() const
 	case Location::SHA256:
 	case Location::RIPEMD160:
 	case Location::SendAsset:
+	case Location::ReceivedAsset:
 		return true;
 	default:
 		return false;

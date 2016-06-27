@@ -797,6 +797,7 @@ public:
 		SHA256, ///< CALL to special contract for sha256
 		RIPEMD160, ///< CALL to special contract for ripemd160
 		SendAsset, ///< CALL to special contract for sendasset
+		ReceivedAsset, ///< CALL to special contract for receivedasset
 		Log0,
 		Log1,
 		Log2,
