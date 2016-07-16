@@ -362,6 +362,7 @@ MemberList::MemberMap IntegerType::nativeMembers(ContractDefinition const*) cons
 		return {
 			{"balance", make_shared<IntegerType >(256)},
 			{"call", make_shared<FunctionType>(strings(), strings{"bool"}, FunctionType::Location::Bare, true)},
+			{"callwithasset", make_shared<FunctionType>(strings(), strings{"bool"}, FunctionType::Location::BareWithAsset, true)},
 			{"callcode", make_shared<FunctionType>(strings(), strings{"bool"}, FunctionType::Location::BareCallCode, true)},
 			{"delegatecall", make_shared<FunctionType>(strings(), strings{"bool"}, FunctionType::Location::BareDelegateCall, true)},
 			{"send", make_shared<FunctionType>(strings{"uint"}, strings{"bool"}, FunctionType::Location::Send)}
@@ -1874,6 +1875,7 @@ MemberList::MemberMap FunctionType::nativeMembers(ContractDefinition const*) con
 	case Location::SHA256:
 	case Location::RIPEMD160:
 	case Location::Bare:
+	case Location::BareWithAsset:
 	case Location::BareCallCode:
 	case Location::BareDelegateCall:
 	{
@@ -1954,6 +1956,7 @@ bool FunctionType::isBareCall() const
 	switch (m_location)
 	{
 	case Location::Bare:
+	case Location::BareWithAsset:
 	case Location::BareCallCode:
 	case Location::BareDelegateCall:
 	case Location::ECRecover:

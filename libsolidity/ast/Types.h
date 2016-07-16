@@ -787,6 +787,7 @@ public:
 		CallCode, ///< extercnal call using CALLCODE, i.e. not exchanging the storage
 		DelegateCall, ///< extercnal call using DELEGATECALL, i.e. not exchanging the storage
 		Bare, ///< CALL without function hash
+		BareWithAsset, ///< CALL without function hash
 		BareCallCode, ///< CALLCODE without function hash
 		BareDelegateCall, ///< DELEGATECALL without function hash
 		Creation, ///< external call using CREATE

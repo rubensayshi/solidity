@@ -501,6 +501,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 		case Location::CallCode:
 		case Location::DelegateCall:
 		case Location::Bare:
+		case Location::BareWithAsset:
 		case Location::BareCallCode:
 		case Location::BareDelegateCall:
 			_functionCall.expression().accept(*this);
@@ -963,7 +964,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			);
 			m_context << Instruction::BALANCE;
 		}
-		else if ((set<string>{"send", "call", "callcode", "delegatecall"}).count(member))
+		else if ((set<string>{"send", "call", "callwithasset", "callcode", "delegatecall"}).count(member))
 			utils().convertType(
 				*_memberAccess.expression().annotation().type,
 				IntegerType(0, IntegerType::Modifier::Address),
@@ -1428,7 +1429,7 @@ void ExpressionCompiler::appendExternalFunctionCall(
 
 	using FunctionKind = FunctionType::Location;
 	FunctionKind funKind = _functionType.location();
-	bool returnSuccessCondition = funKind == FunctionKind::Bare || funKind == FunctionKind::BareCallCode;
+	bool returnSuccessCondition = funKind == FunctionKind::Bare || funKind == FunctionKind::BareWithAsset || funKind == FunctionKind::BareCallCode;
 	bool isCallCode = funKind == FunctionKind::BareCallCode || funKind == FunctionKind::CallCode;
 	bool isDelegateCall = funKind == FunctionKind::BareDelegateCall || funKind == FunctionKind::DelegateCall;
 
@@ -1446,7 +1447,7 @@ void ExpressionCompiler::appendExternalFunctionCall(
 	TypePointers argumentTypes;
 	TypePointers parameterTypes = _functionType.parameterTypes();
 	bool manualFunctionId =
-		(funKind == FunctionKind::Bare || funKind == FunctionKind::BareCallCode || funKind == FunctionKind::BareDelegateCall) &&
+		(funKind == FunctionKind::Bare || funKind == FunctionKind::BareWithAsset || funKind == FunctionKind::BareCallCode || funKind == FunctionKind::BareDelegateCall) &&
 		!_arguments.empty() &&
 		_arguments.front()->annotation().type->mobileType()->calldataEncodedSize(false) ==
 			CompilerUtils::dataStartOffset;
@@ -1535,12 +1536,15 @@ void ExpressionCompiler::appendExternalFunctionCall(
 			Instruction::GAS <<
 			Instruction::SUB;
 	}
-	if (isDelegateCall)
+	if (isDelegateCall) {
 		m_context << Instruction::DELEGATECALL;
-	else if (isCallCode)
+	} else if (isCallCode) {
 		m_context << Instruction::CALLCODE;
-	else
+	} else if (funKind == FunctionKind::BareWithAsset) {
+		m_context << CustomInstruction::CALLWITHASSET;
+	} else {
 		m_context << Instruction::CALL;
+	}
 
 	unsigned remainsSize =
 		2 + // contract address, input_memory_end

@@ -171,12 +171,19 @@ enum class Instruction: uint8_t
 	LOG3,				///< Makes a log entry; 3 topics.
 	LOG4,				///< Makes a log entry; 4 topics.
 
+	RESERVED = 0xef,    ///< Reserved opcode for forks etc // 239
+
 	CREATE = 0xf0,		///< create a new account with associated code  // 240
 	CALL,				///< message-call into an account
 	CALLCODE,			///< message-call with another account's code only
 	RETURN,				///< halt execution returning output data
 	DELEGATECALL,		///< like CALLCODE but keeps caller's value and sender
 	SUICIDE = 0xff		///< halt execution and register account for later deletion
+};
+
+enum class CustomInstruction: uint8_t
+{
+	CALLWITHASSET = 0xf1,        ///< message-call into an account, with asset
 };
 
 /// @returns the number of PUSH Instruction _inst
