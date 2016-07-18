@@ -60,10 +60,14 @@ public:
 		AssemblyItem(Push, _push, _location) { }
 	AssemblyItem(solidity::Instruction _i, SourceLocation const& _location = SourceLocation()):
 		AssemblyItem(Operation, byte(_i), _location) { }
-	AssemblyItem(AssemblyItemType _type, u256 _data = 0, SourceLocation const& _location = SourceLocation()):
+	AssemblyItem(solidity::CustomInstruction _i, SourceLocation const& _location = SourceLocation()):
+		AssemblyItem(Operation, byte(_i), _location) { }
+
+	AssemblyItem(AssemblyItemType _type, u256 _data = 0, SourceLocation const& _location = SourceLocation(), bool _custom = false):
 		m_type(_type),
 		m_data(_data),
-		m_location(_location)
+		m_location(_location),
+		m_custom(_custom)
 	{
 	}
 
@@ -72,11 +76,13 @@ public:
 
 	AssemblyItemType type() const { return m_type; }
 	u256 const& data() const { return m_data; }
+	bool custom() const { return m_custom; }
 	void setType(AssemblyItemType const _type) { m_type = _type; }
 	void setData(u256 const& _data) { m_data = _data; }
 
 	/// @returns the instruction of this item (only valid if type() == Operation)
 	Instruction instruction() const { return Instruction(byte(m_data)); }
+	CustomInstruction customInstruction() const { return CustomInstruction(byte(m_data)); }
 
 	/// @returns true if the type and data of the items are equal.
 	bool operator==(AssemblyItem const& _other) const { return m_type == _other.m_type && m_data == _other.m_data; }
@@ -104,6 +110,7 @@ private:
 	AssemblyItemType m_type;
 	u256 m_data;
 	SourceLocation m_location;
+	bool m_custom;
 	JumpType m_jumpType = JumpType::Ordinary;
 	/// Pushed value for operations with data to be determined during assembly stage,
 	/// e.g. PushSubSize, PushTag, PushSub, etc.

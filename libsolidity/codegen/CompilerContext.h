@@ -32,9 +32,11 @@
 #include <libsolidity/ast/Types.h>
 #include <libsolidity/ast/ASTAnnotations.h>
 #include <libdevcore/Common.h>
+using namespace std;
 
 namespace dev {
 namespace solidity {
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
 
 /**
@@ -128,7 +130,11 @@ public:
 
 	/// Append elements to the current instruction list and adjust @a m_stackOffset.
 	CompilerContext& operator<<(eth::AssemblyItem const& _item) { m_asm.append(_item); return *this; }
-	CompilerContext& operator<<(Instruction _instruction) { m_asm.append(_instruction); return *this; }
+	CompilerContext& operator<<(Instruction _instruction) {
+		cerr << __FILENAME__ << ":" << __LINE__ << " context << " << static_cast<int>(_instruction) << "\n";
+		m_asm.append(_instruction); return *this;
+	}
+	CompilerContext& operator<<(CustomInstruction _instruction) { m_asm.append(_instruction); return *this; }
 	CompilerContext& operator<<(u256 const& _value) { m_asm.append(_value); return *this; }
 	CompilerContext& operator<<(bytes const& _data) { m_asm.append(_data); return *this; }
 

@@ -154,6 +154,7 @@ const std::map<std::string, Instruction> dev::solidity::c_instructions =
 	{ "LOG2", Instruction::LOG2 },
 	{ "LOG3", Instruction::LOG3 },
 	{ "LOG4", Instruction::LOG4 },
+	{ "RESERVED", Instruction::RESERVED },
 	{ "CREATE", Instruction::CREATE },
 	{ "CALL", Instruction::CALL },
 	{ "CALLCODE", Instruction::CALLCODE },
@@ -288,12 +289,18 @@ static const std::map<Instruction, InstructionInfo> c_instructionInfo =
 	{ Instruction::LOG2,		{ "LOG2",			0, 4, 0, true, SpecialTier } },
 	{ Instruction::LOG3,		{ "LOG3",			0, 5, 0, true, SpecialTier } },
 	{ Instruction::LOG4,		{ "LOG4",			0, 6, 0, true, SpecialTier } },
+	{ Instruction::RESERVED,	{ "RESERVED",		0, 0, 0, false, VeryLowTier } },
 	{ Instruction::CREATE,		{ "CREATE",			0, 3, 1, true, SpecialTier } },
 	{ Instruction::CALL,		{ "CALL",			0, 7, 1, true, SpecialTier } },
 	{ Instruction::CALLCODE,	{ "CALLCODE",		0, 7, 1, true, SpecialTier } },
 	{ Instruction::RETURN,		{ "RETURN",			0, 2, 0, true, ZeroTier } },
 	{ Instruction::DELEGATECALL,{ "DELEGATECALL",	0, 6, 1, true, SpecialTier } },
 	{ Instruction::SUICIDE,		{ "SUICIDE",		0, 1, 0, true, ZeroTier } }
+};
+
+static const std::map<CustomInstruction, InstructionInfo> c_customInstructionInfo =
+{ //												        Add, Args, Ret, SideEffects, GasPriceTier
+	{ CustomInstruction::CALLWITHASSET,	{ "CALLWITHASSET",	0, 7, 1, true, SpecialTier } },
 };
 
 void dev::solidity::eachInstruction(
@@ -340,6 +347,18 @@ InstructionInfo dev::solidity::instructionInfo(Instruction _inst)
 	try
 	{
 		return c_instructionInfo.at(_inst);
+	}
+	catch (...)
+	{
+		return InstructionInfo({"<INVALID_INSTRUCTION: " + toString((unsigned)_inst) + ">", 0, 0, 0, false, InvalidTier});
+	}
+}
+
+InstructionInfo dev::solidity::instructionInfo(CustomInstruction _inst)
+{
+	try
+	{
+		return c_customInstructionInfo.at(_inst);
 	}
 	catch (...)
 	{

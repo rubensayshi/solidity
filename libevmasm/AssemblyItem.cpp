@@ -57,7 +57,11 @@ int AssemblyItem::deposit() const
 	switch (m_type)
 	{
 	case Operation:
-		return instructionInfo(instruction()).ret - instructionInfo(instruction()).args;
+		if (custom()) {
+			return instructionInfo(customInstruction()).ret - instructionInfo(customInstruction()).args;
+		} else {
+			return instructionInfo(instruction()).ret - instructionInfo(instruction()).args;
+		}
 	case Push:
 	case PushString:
 	case PushTag:

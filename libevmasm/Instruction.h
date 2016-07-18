@@ -183,7 +183,7 @@ enum class Instruction: uint8_t
 
 enum class CustomInstruction: uint8_t
 {
-	CALLWITHASSET = 0xf1,        ///< message-call into an account, with asset
+	CALLWITHASSET = 0x01,        ///< message-call into an account, with asset
 };
 
 /// @returns the number of PUSH Instruction _inst
@@ -258,6 +258,7 @@ struct InstructionInfo
 
 /// Information on all the instructions.
 InstructionInfo instructionInfo(Instruction _inst);
+InstructionInfo instructionInfo(CustomInstruction _inst);
 
 /// check whether instructions exists
 bool isValidInstruction(Instruction _inst);

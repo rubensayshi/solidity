@@ -31,6 +31,8 @@ using namespace std;
 using namespace dev;
 using namespace dev::eth;
 
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
 void Assembly::append(Assembly const& _a)
 {
 	auto newDeposit = m_deposit + _a.deposit();
@@ -287,6 +289,8 @@ Json::Value Assembly::stream(ostream& _out, string const& _prefix, StringMap con
 
 AssemblyItem const& Assembly::append(AssemblyItem const& _i)
 {
+	cerr << __FILENAME__ << ":" << __LINE__ << " append(AssemblyItem) " << static_cast<int>(_i.instruction()) << "\n";
+
 	m_deposit += _i.deposit();
 	m_items.push_back(_i);
 	if (m_items.back().location().isEmpty() && !m_currentSourceLocation.isEmpty())

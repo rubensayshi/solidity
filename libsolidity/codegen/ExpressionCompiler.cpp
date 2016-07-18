@@ -34,6 +34,9 @@
 using namespace std;
 using namespace boost::multiprecision::literals;
 
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
+
 namespace dev
 {
 namespace solidity
@@ -1541,10 +1544,22 @@ void ExpressionCompiler::appendExternalFunctionCall(
 	} else if (isCallCode) {
 		m_context << Instruction::CALLCODE;
 	} else if (funKind == FunctionKind::BareWithAsset) {
+//		cerr << __FILENAME__ << ":" << __LINE__ << "m_context.stackHeight() " << static_cast<int>(m_context.stackHeight()) << "\n";
+//		cerr << __FILENAME__ << ":" << __LINE__ << "m_context << CALL " << static_cast<int>(Instruction::CALL) << "\n";
+//		m_context << Instruction::CALL;
+//		cerr << __FILENAME__ << ":" << __LINE__ << "m_context.stackHeight() " << static_cast<int>(m_context.stackHeight()) << "\n";
+
+ 		cerr << __FILENAME__ << ":" << __LINE__ << "m_context.stackHeight() " << static_cast<int>(m_context.stackHeight()) << "\n";
+		cerr << __FILENAME__ << ":" << __LINE__ << "m_context << RESERVED " << static_cast<int>(Instruction::RESERVED) << "\n";
+		m_context << Instruction::RESERVED;
+		cerr << __FILENAME__ << ":" << __LINE__ << "m_context.stackHeight() " << static_cast<int>(m_context.stackHeight()) << "\n";
+		cerr << __FILENAME__ << ":" << __LINE__ << "m_context << CALLWITHASSET " << static_cast<int>(CustomInstruction::CALLWITHASSET) << "\n";
 		m_context << CustomInstruction::CALLWITHASSET;
+		cerr << __FILENAME__ << ":" << __LINE__ << "m_context.stackHeight() " << static_cast<int>(m_context.stackHeight()) << "\n";
 	} else {
 		m_context << Instruction::CALL;
 	}
+
 
 	unsigned remainsSize =
 		2 + // contract address, input_memory_end
