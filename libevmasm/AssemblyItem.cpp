@@ -57,9 +57,15 @@ int AssemblyItem::deposit() const
 	switch (m_type)
 	{
 	case Operation:
+		cerr << __FILENAME__ << ":" << __LINE__ << " deposit() custom() " << static_cast<int>(custom()) << "\n";
+
 		if (custom()) {
+			cerr << __FILENAME__ << ":" << __LINE__ << " deposit() .ret " << static_cast<int>(instructionInfo(customInstruction()).ret) << "\n";
+			cerr << __FILENAME__ << ":" << __LINE__ << " deposit() .args " << static_cast<int>(instructionInfo(customInstruction()).args) << "\n";
 			return instructionInfo(customInstruction()).ret - instructionInfo(customInstruction()).args;
 		} else {
+			cerr << __FILENAME__ << ":" << __LINE__ << " deposit() .ret " << static_cast<int>(instructionInfo(instruction()).ret) << "\n";
+			cerr << __FILENAME__ << ":" << __LINE__ << " deposit() .args " << static_cast<int>(instructionInfo(instruction()).args) << "\n";
 			return instructionInfo(instruction()).ret - instructionInfo(instruction()).args;
 		}
 	case Push:

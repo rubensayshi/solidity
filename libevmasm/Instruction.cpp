@@ -289,7 +289,7 @@ static const std::map<Instruction, InstructionInfo> c_instructionInfo =
 	{ Instruction::LOG2,		{ "LOG2",			0, 4, 0, true, SpecialTier } },
 	{ Instruction::LOG3,		{ "LOG3",			0, 5, 0, true, SpecialTier } },
 	{ Instruction::LOG4,		{ "LOG4",			0, 6, 0, true, SpecialTier } },
-	{ Instruction::RESERVED,	{ "RESERVED",		0, 0, 0, false, VeryLowTier } },
+	{ Instruction::RESERVED,	{ "RESERVED",		0, 0, 0, false, ZeroTier } },
 	{ Instruction::CREATE,		{ "CREATE",			0, 3, 1, true, SpecialTier } },
 	{ Instruction::CALL,		{ "CALL",			0, 7, 1, true, SpecialTier } },
 	{ Instruction::CALLCODE,	{ "CALLCODE",		0, 7, 1, true, SpecialTier } },

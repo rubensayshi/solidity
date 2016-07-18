@@ -28,7 +28,12 @@
 #include <libevmasm/Instruction.h>
 #include <libevmasm/SourceLocation.h>
 #include "Exceptions.h"
+using namespace std;
 using namespace dev::solidity;
+
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
+
 
 namespace dev
 {
@@ -61,7 +66,7 @@ public:
 	AssemblyItem(solidity::Instruction _i, SourceLocation const& _location = SourceLocation()):
 		AssemblyItem(Operation, byte(_i), _location) { }
 	AssemblyItem(solidity::CustomInstruction _i, SourceLocation const& _location = SourceLocation()):
-		AssemblyItem(Operation, byte(_i), _location) { }
+		AssemblyItem(Operation, byte(_i), _location, true) { }
 
 	AssemblyItem(AssemblyItemType _type, u256 _data = 0, SourceLocation const& _location = SourceLocation(), bool _custom = false):
 		m_type(_type),
