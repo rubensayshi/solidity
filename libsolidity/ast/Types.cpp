@@ -362,7 +362,7 @@ MemberList::MemberMap IntegerType::nativeMembers(ContractDefinition const*) cons
 		return {
 			{"balance", make_shared<IntegerType >(256)},
 			{"call", make_shared<FunctionType>(strings(), strings{"bool"}, FunctionType::Location::Bare, true)},
-			{"callwithasset", make_shared<FunctionType>(strings(), strings{"bool"}, FunctionType::Location::BareWithAsset, true)},
+			{"callwithasset", make_shared<FunctionType>(strings(), strings{"bool"}, FunctionType::Location::BareWithAsset, true, true)},
 			{"callcode", make_shared<FunctionType>(strings(), strings{"bool"}, FunctionType::Location::BareCallCode, true)},
 			{"delegatecall", make_shared<FunctionType>(strings(), strings{"bool"}, FunctionType::Location::BareDelegateCall, true)},
 			{"send", make_shared<FunctionType>(strings{"uint"}, strings{"bool"}, FunctionType::Location::Send)}
@@ -2270,6 +2270,8 @@ MemberList::MemberMap MagicType::nativeMembers(ContractDefinition const*) const
 		return MemberList::MemberMap({
 			{"sender", make_shared<IntegerType>(0, IntegerType::Modifier::Address)},
 			{"gas", make_shared<IntegerType>(256)},
+			{"asset", make_shared<FixedBytesType>(32)},
+			{"assetvalue", make_shared<IntegerType>(256)},
 			{"value", make_shared<IntegerType>(256)},
 			{"data", make_shared<ArrayType>(DataLocation::CallData)},
 			{"sig", make_shared<FixedBytesType>(4)}

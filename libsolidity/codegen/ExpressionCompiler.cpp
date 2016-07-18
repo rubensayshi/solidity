@@ -1000,7 +1000,13 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			m_context << Instruction::ORIGIN;
 		else if (member == "gas")
 			m_context << Instruction::GAS;
-		else if (member == "gasprice")
+		else if (member == "asset") {
+			m_context << Instruction::RESERVED;
+			m_context << CustomInstruction::ASSET;
+		} else if (member == "assetvalue") {
+			m_context << Instruction::RESERVED;
+			m_context << CustomInstruction::ASSETVALUE;
+		} else if (member == "gasprice")
 			m_context << Instruction::GASPRICE;
 		else if (member == "data")
 			m_context << u256(0) << Instruction::CALLDATASIZE;
@@ -1435,6 +1441,7 @@ void ExpressionCompiler::appendExternalFunctionCall(
 	bool returnSuccessCondition = funKind == FunctionKind::Bare || funKind == FunctionKind::BareWithAsset || funKind == FunctionKind::BareCallCode;
 	bool isCallCode = funKind == FunctionKind::BareCallCode || funKind == FunctionKind::CallCode;
 	bool isDelegateCall = funKind == FunctionKind::BareDelegateCall || funKind == FunctionKind::DelegateCall;
+	bool withAsset = funKind == FunctionKind::BareWithAsset;
 
 	unsigned retSize = 0;
 	if (returnSuccessCondition)
@@ -1539,6 +1546,12 @@ void ExpressionCompiler::appendExternalFunctionCall(
 			Instruction::GAS <<
 			Instruction::SUB;
 	}
+
+	if (withAsset) {
+		m_context << Instruction::RESERVED << CustomInstruction::ASSETVALUE;
+		m_context << Instruction::RESERVED << CustomInstruction::ASSET;
+	}
+
 	if (isDelegateCall) {
 		m_context << Instruction::DELEGATECALL;
 	} else if (isCallCode) {

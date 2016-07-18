@@ -300,7 +300,9 @@ static const std::map<Instruction, InstructionInfo> c_instructionInfo =
 
 static const std::map<CustomInstruction, InstructionInfo> c_customInstructionInfo =
 { //												        Add, Args, Ret, SideEffects, GasPriceTier
-	{ CustomInstruction::CALLWITHASSET,	{ "CALLWITHASSET",	0, 7, 1, true, SpecialTier } },
+	{ CustomInstruction::CALLWITHASSET,	{ "CALLWITHASSET",	0, 9, 1, true, SpecialTier } },
+	{ CustomInstruction::ASSET,			{ "ASSET",			0, 0, 1, false, BaseTier } },
+	{ CustomInstruction::ASSETVALUE,	{ "ASSETVALUE",		0, 0, 1, false, BaseTier } },
 };
 
 void dev::solidity::eachInstruction(
