@@ -289,7 +289,7 @@ Json::Value Assembly::stream(ostream& _out, string const& _prefix, StringMap con
 
 AssemblyItem const& Assembly::append(AssemblyItem const& _i)
 {
-	cerr << __FILENAME__ << ":" << __LINE__ << " append(AssemblyItem) " << static_cast<int>(_i.instruction()) << "\n";
+//	cerr << __FILENAME__ << ":" << __LINE__ << " append(AssemblyItem) " << static_cast<int>(_i.instruction()) << "\n";
 
 	m_deposit += _i.deposit();
 	m_items.push_back(_i);

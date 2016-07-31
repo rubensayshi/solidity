@@ -131,7 +131,7 @@ public:
 	/// Append elements to the current instruction list and adjust @a m_stackOffset.
 	CompilerContext& operator<<(eth::AssemblyItem const& _item) { m_asm.append(_item); return *this; }
 	CompilerContext& operator<<(Instruction _instruction) {
-		cerr << __FILENAME__ << ":" << __LINE__ << " context << " << static_cast<int>(_instruction) << "\n";
+//		cerr << __FILENAME__ << ":" << __LINE__ << " context << " << static_cast<int>(_instruction) << "\n";
 		m_asm.append(_instruction); return *this;
 	}
 	CompilerContext& operator<<(CustomInstruction _instruction) { m_asm.append(_instruction); return *this; }

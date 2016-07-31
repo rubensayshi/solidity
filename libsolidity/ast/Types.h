@@ -825,6 +825,22 @@ public:
 	explicit FunctionType(EventDefinition const& _event);
 
 	FunctionType(
+			strings const& _parameterTypes,
+			strings const& _returnParameterTypes,
+			Location _location = Location::Internal,
+			bool _arbitraryParameters = false
+	): FunctionType(
+			parseElementaryTypeVector(_parameterTypes),
+			parseElementaryTypeVector(_returnParameterTypes),
+			strings(),
+			strings(),
+			_location,
+			_arbitraryParameters
+	)
+	{
+	}
+
+	FunctionType(
 		TypePointers const& _parameterTypes,
 		TypePointers const& _returnParameterTypes,
 		strings _parameterNames = strings(),
